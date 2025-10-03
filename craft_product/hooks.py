@@ -213,3 +213,20 @@ app_license = "mit"
 # auth_hooks = [
 # 	"craft_product.auth.validate"
 # ]
+
+
+doc_events = {
+    "User": {
+        "before_insert": "craft_product.events.user.before_insert"
+        
+    },
+    "Company":{
+        "before_insert":"craft_product.events.company.before_insert"
+    }
+}
+
+
+doctype_js = {
+    "Accounts" : "public/js/account.js"
+}
+
