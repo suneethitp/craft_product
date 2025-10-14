@@ -1,16 +1,13 @@
 <template>
   <div class="dashboard-container">
-
     <!-- Sidebar -->
     <div class="sidebar">
-      <!-- User Info -->
-      <div class="user-info">
+          <div class="user-info">
         <img src="/profile.png" alt="User Photo" class="user-photo" />
         <div class="user-name">{{ user.name || "Guest" }}</div>
       </div>
-      <br>
-      <br>
 
+      <br><br>
 
       <div class="sidebar-heading">Masters & Reports</div>
       <div
@@ -21,89 +18,50 @@
       >
         {{ module.name }}
       </div>
-      <br>
-      <br>
 
-            <!-- Return Home Button -->
-          <div class="return-home">
-            <button @click="navigateHome" class="home-btn">Back to Home</button>
-          </div>
- 
+      <br><br>
+
+      <div class="return-home">
+        <button @click="navigateHome" class="home-btn">Back to Home</button>
+      </div>
     </div>
 
     <!-- Main Dashboard -->
     <div class="main-content">
       <br>
-      <!-- Cards Row -->
+
+      <!-- Cards -->
       <div class="cards-row-a">
-        <div class="card" @click="navigateTo('/app/account')">
-          <h4><b>Total Accounts</b></h4>
-          <p><b>{{ accountsCount }}</b></p>
-        </div>
-
         <div class="card" @click="navigateTo('/app/sales-invoice')">
-          <h4><b>Sales Invoices</b></h4>
-          <p>Total: {{ salesInvoiceCount }}</p>
-          <span class="down">Overdue: {{ overdueSalesInvoiceCount }}</span>
+          <h6>TOTAL OUTGOING BILLS</h6>
+          <p><b>{{ currencySymbol }} {{ formatAmount(totalSalesAmount) }}</b></p>
         </div>
 
-        <div class="card" @click="navigateTo('/app/payment-entry')">
-          <h4><b>Payment Received</b></h4>
-          <p class="up">Total: {{ paymentReceivedTotal | formatCurrency }}</p>
-          <p class="down">Due Total: {{ formatCurrency(paymentReceiveDueTotal) }}</p>
+        <div class="card" @click="navigateTo('/app/purchase-invoice')">
+          <h6>TOTAL INCOMING BILLS</h6>
+          <p><b>{{ currencySymbol }} {{ formatAmount(totalPurchaseAmount) }}</b></p>
         </div>
 
-        <div class="card" @click="navigateTo('/app/payment-entry')">
-          <h4><b>Payment Made</b></h4>
-          <p class="up">Total: {{ formatCurrency(paymentPaidTotal) }}</p>
-          <p class="down">Due Total: {{ formatCurrency(paymentPayDueTotal) }}</p>
-        </div>
-      </div>
-       <div class="cards-row-b">
-           <div class="card" @click="navigateTo('/app/company')">
-              <h4><b>Companies</b></h4>
-              <p><b>{{ companyCount }}</b></p>
-              <p>&nbsp;</p>
-            </div>
-             <div class="card" @click="navigateTo('/app/purchase-invoice')">
-              <h4><b>Purchase Invoices</b></h4>
-              <p> {{ purchaseInvoiceCount }}</p>
-              <p>&nbsp;</p>
-            </div>
-              <div class="card" @click="navigateTo('/app/journal-entry')">
-                <h4><b>Journal Entries</b></h4>
-                <p> {{ journalEntryCount }}</p>
-                <p>&nbsp;</p>
-              </div>
-
-              <div class="card" @click="navigateTo('/app/query-report/Accounts%20Receivable')">
-                <h4><b>Accounts Receivable</b></h4>
-                <p> {{ accountsReceivableCount }}</p>
-                <p>&nbsp;</p>
-              </div>
-      </div>
-
-
-      <!-- Bottom Section (Calendar + Map) -->
-      <div class="bottom-row">
-        <!-- Calendar -->
-        <div class="calendar-card">
-          <h4><b>Calendar</b></h4>
-          <div id="calendar"></div>
+        <div class="card" @click="navigateTo('/app/payment-entry/view/list?payment_type=Receive')">
+          <h6>TOTAL INCOMING PAYMENT</h6>
+          <p><b>{{ currencySymbol }} {{ formatAmount(paymentReceivedTotal) }}</b></p>
         </div>
 
-        <!-- Real-Time Map -->
-        <div class="realtime-card">
-          <h4>Real-Time Map</h4>
-          <div id="map"></div>
-          <div class="world-clocks">
-            <div>USA (NY): <span id="usa-time"></span></div>
-            <div>UK: <span id="uk-time"></span></div>
-            <div>UAE: <span id="uae-time"></span></div>
-            <div>India: <span id="india-time"></span></div>
-          </div>
+        <div class="card" @click="navigateTo('/app/payment-entry/view/list?payment_type=Pay')">
+          <h6>TOTAL OUTGOING PAYMENT</h6>
+          <p><b>{{ currencySymbol }} {{ formatAmount(paymentPaidTotal) }}</b></p>
         </div>
       </div>
+
+      <!-- Sales vs Purchase Invoice Graph -->
+      <div class="graph">
+        <div class="graph-section">
+          <h4><b>Purchase Invoice vs Sales Invoice</b></h4>
+          <canvas id="invoiceTrendChart"></canvas>
+        </div>
+      </div>
+
+      
     </div>
   </div>
 </template>
@@ -113,257 +71,154 @@ export default {
   name: "DashboardPage",
   data() {
     return {
-      searchQuery: "",
-      user: {
-        name: "",
-        photo: "",
-      },
+      user: { name: "", photo: "" },
       defaultPhoto: "https://i.pravatar.cc/100",
-      filteredModules: [
-        { name: "Module 1", url: "/module1" },
-        { name: "Module 2", url: "/module2" },
-      ],
-      search: "",
-      accountsCount: 0,
-      salesInvoiceCount: 0,      
-      overdueSalesInvoiceCount: 0,
-      paymentReceivedTotal: 0,
-      paymentReceiveDueTotal: 0,
-      paymentPaidTotal: 0,
-      paymentPayDueTotal: 0, 
-      companyCount: 0,
-      purchaseInvoiceCount: 0,
-      journalEntryCount: 0,
-      accountsReceivableCount: 0,
       modules: [
-        { name: "Chart of Accounts", url: "/app/account" },
-        { name: "Company", url: "/app/company" },
         { name: "Sales Invoice", url: "/app/sales-invoice" },
-        { name: "Journal Entry", url: "/app/journal-entry" },
+        { name: "Purchase Invoice", url: "/app/purchase-invoice" },
         { name: "Payment Entry", url: "/app/payment-entry" },
         { name: "Trial Balance", url: "/app/query-report/Trial%20Balance" },
         { name: "General Ledger", url: "/app/query-report/General%20Ledger" },
-        { name: "Purchase Invoice", url: "/app/purchase-invoice" },
-        {
-          name: "Accounts Receivable",
-          url: "/app/query-report/Accounts%20Receivable",
-        },
+        { name: "Accounts Receivable", url: "/app/query-report/Accounts%20Receivable" },
+        { name: "Journal Entry", url: "/app/journal-entry" },
+        { name: "Chart of Accounts", url: "/app/account" },
+        { name: "Company", url: "/app/company" }
       ],
-
+      totalPurchaseAmount: 0,
+      totalSalesAmount: 0,
+      paymentReceivedTotal: 0,
+      paymentPaidTotal: 0,
+      currencySymbol: "",
     };
   },
+
   computed: {
     filteredModules() {
-      
-      if (!this.search) return this.modules;
-      const searchLower = this.search.toLowerCase();
-      return this.modules.filter((m) =>
-        m.name.toLowerCase().includes(searchLower)
-      );
+      return this.modules;
     },
   },
+
   methods: {
     navigateTo(url) {
       if (url) window.location.href = url;
-    },  
+    },
     navigateHome() {
-      window.location.href = "/home" 
-  },
-    formatCurrency(value) {
-    if (!value) return "0";
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
-  },
-    formatCurrency(value) {
-    if (!value) return "0";
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
-  },
-  async getCurrentUser() {
+      window.location.href = "/home";
+    },
+    formatAmount(value) {
+      return (value || 0).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    },
+    async getCurrentUser() {
       try {
-        // ERPNext: Get current user
         const res = await fetch("/api/method/frappe.auth.get_logged_user");
-        const data = await res.json();
-        const userEmail = data.message;
-
-        // Fetch full user info
-        const userRes = await fetch(`/api/resource/User/${userEmail}`);
+        const { message: email } = await res.json();
+        const userRes = await fetch(`/api/resource/User/${email}`);
         const userData = await userRes.json();
-
         this.user.name = userData.data.full_name;
-        this.user.photo = userData.data.user_image; // should be URL or base64
+        this.user.photo = userData.data.user_image;
       } catch (err) {
-        console.error("Error fetching user info:", err);
+        console.error("Error fetching user:", err);
       }
     },
 
-  },
-  mounted() {
-    this.getCurrentUser();
-    // // FullCalendar init
-    const calendarEl = document.getElementById("calendar");
-    const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: "dayGridMonth",
-      height: "100",
-      events: [
-        // { title: "", date: "2025-10-05" },
-        // { title: "", date: "2025-10-12" },
-        // { title: "", date: "2025-10-18" },
+    async getCurrencySymbol() {
+      try {
+        const res = await fetch('/api/resource/Company?fields=["default_currency"]&limit_page_length=1');
+        const data = await res.json();
+        const code = data?.data?.[0]?.default_currency || "USD";
+        const symbols = {
+          INR: "₹", USD: "$", EUR: "€", GBP: "£", QAR: "﷼", AED: "د.إ",
+          SAR: "﷼", KWD: "د.ك", OMR: "﷼", AFN: "؋"
+        };
+        this.currencySymbol = symbols[code] || code;
+      } catch (err) {
+        console.error("Error fetching currency:", err);
+      }
+    },
 
-      ],
-    });
-    calendar.render();
+    // ---------- Fetch Totals ----------
+    async fetchTotals() {
+      try {
+        // Purchase Invoice total
+        const piRes = await fetch('/api/resource/Purchase%20Invoice?filters=[["docstatus","=",1]]&fields=["grand_total"]&limit_page_length=0');
+        const piData = await piRes.json();
+        this.totalPurchaseAmount = piData.data.reduce((sum, i) => sum + parseFloat(i.grand_total || 0), 0);
 
+        // Sales Invoice total
+        const siRes = await fetch('/api/resource/Sales%20Invoice?filters=[["docstatus","=",1]]&fields=["grand_total","outstanding_amount"]&limit_page_length=0');
+        const siData = await siRes.json();
+        this.totalSalesAmount = siData.data.reduce((sum, i) => {
+          return sum + (parseFloat(i.grand_total || 0) - parseFloat(i.outstanding_amount || 0));
+        }, 0);
 
+        // Payment Received
+        const payRecv = await fetch(`/api/resource/Payment%20Entry?filters=[["payment_type","=","Receive"],["docstatus","=","1"]]&fields=["paid_amount"]&limit_page_length=0`);
+        const payRecvData = await payRecv.json();
+        this.paymentReceivedTotal = payRecvData.data.reduce((sum, e) => sum + parseFloat(e.paid_amount || 0), 0);
 
-    // ---------------Initialize map------------------------------
-const map = L.map("map", { zoomControl: true }).setView([20, 20], 2);
+        // Payment Paid
+        const payPay = await fetch(`/api/resource/Payment%20Entry?filters=[["payment_type","=","Pay"],["docstatus","=","1"]]&fields=["paid_amount"]&limit_page_length=0`);
+        const payPayData = await payPay.json();
+        this.paymentPaidTotal = payPayData.data.reduce((sum, e) => sum + parseFloat(e.paid_amount || 0), 0);
+      } catch (err) {
+        console.error("Error fetching totals:", err);
+      }
+    },
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap contributors",
-}).addTo(map);
-
-// Live User marker (random movement)
-const liveMarker = L.marker([20, 77]).addTo(map).bindPopup("Live User");
-
-setInterval(() => {
-  const lat = 20 + Math.random() * 5;
-  const lng = 77 + Math.random() * 5;
-  liveMarker.setLatLng([lat, lng]);
-}, 3000);
-
-// World Clock Data
-const countries = [
-  
-  { name: "USA (New York)", coords: [40.7128, -74.0060], tz: "America/New_York", elId: "usa-time" },
-  { name: "UK", coords: [51.5074, -0.1278], tz: "Europe/London", elId: "uk-time" },
-  { name: "UAE", coords: [24.4539, 54.3773], tz: "Asia/Dubai", elId: "uae-time" },
-  { name: "India", coords: [20.5937, 78.9629], tz: "Asia/Kolkata", elId: "india-time" }
-];
-
-// Add markers
-const countryMarkers = countries.map(c => {
-  const time = new Date().toLocaleTimeString("en-US", { timeZone: c.tz });
-  // Set initial clock
-  const el = document.getElementById(c.elId);
-  if (el) el.innerText = time;
-
-  return L.marker(c.coords)
-    .addTo(map)
-    .bindPopup(`${c.name}: ${time}`);
-});
-
-// Update clocks and marker popups every second
-setInterval(() => {
-  countryMarkers.forEach((marker, i) => {
-    const c = countries[i];
-    const time = new Date().toLocaleTimeString("en-US", { timeZone: c.tz });
-    marker.setPopupContent(`${c.name}: ${time}`);
-    const el = document.getElementById(c.elId);
-    if (el) el.innerText = time;
-  });
-}, 1000);
-
-
-
-// -----------count of Accounts-------------
-  fetch("/api/resource/Account?fields=['name']")
-  .then(res => res.json())
-  .then(data => {
-    this.accountsCount = data.data.length; // still 20 if paginated
-  });
-
-// Better: use count API
-    fetch("/api/resource/Account?limit_page_length=0")
-      .then(res => res.json())
-      .then(data => {
-        this.accountsCount = data.data.length; 
+    // ---------- Charts ----------
+    async renderInvoiceChart() {
+      const ctx = document.getElementById("invoiceTrendChart").getContext("2d");
+      const chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          datasets: [
+            { label: "Purchase Invoice", data: Array(12).fill(0), backgroundColor: "rgba(54,162,235,0.5)",  borderColor: "rgba(54, 162, 235, 1)",borderWidth: 0.8},
+            { label: "Sales Invoice", data: Array(12).fill(0), backgroundColor: "rgba(255,99,132,0.5)" ,borderColor: "rgba(255, 99, 132, 1)",borderWidth: 0.8}
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "top" } },
+          scales: { y: { beginAtZero: true } },
+        },
       });
-      // -----------------Fetch total Sales Invoices----------------------
-    fetch("/api/resource/Sales%20Invoice?fields=['name']&limit_page_length=0")
-      .then(res => res.json())
-      .then(data => {
-        this.salesInvoiceCount = data.data.length;
-      })
-      .catch(err => console.error("Error fetching Sales Invoices:", err));
 
-    // -----------Fetch overdue Sales Invoices------------------------
-  
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    fetch(`/api/resource/Sales%20Invoice?filters=[["due_date","<","${today}"],["outstanding_amount",">",0]]&fields=["name"]&limit_page_length=0`)
-      .then(res => res.json())
-      .then(data => {
-        this.overdueSalesInvoiceCount = data.data.length;
-  })
-  .catch(err => console.error("Error fetching overdue Sales Invoices:", err));
+      try {
+        const siRes = await fetch('/api/resource/Sales%20Invoice?fields=["posting_date"]&limit_page_length=1000');
+        const siData = await siRes.json();
+        const siMonthly = Array(12).fill(0);
+        siData.data.forEach(i => siMonthly[new Date(i.posting_date).getMonth()]++);
+        chart.data.datasets[1].data = siMonthly;
 
-  // ---------Fetch total Payment Entry amount for type 'Receive'---------------------
-   fetch(`/api/resource/Payment%20Entry?filters=[["payment_type","=","Receive"]]`)
-  .then(res => res.json())
-  .then(data => {
-    // Sum all 'paid_amount' fields
-    const total = data.data.reduce((sum, entry) => sum + (entry.paid_amount || 0), 0);
-    this.paymentReceivedTotal = total;
-  })
-  .catch(err => console.error("Error fetching Payment Entries:", err));
-  //-------- Fetch total Payment Entry due amount for type 'Receive'-----------
+        const piRes = await fetch('/api/resource/Purchase%20Invoice?fields=["posting_date"]&limit_page_length=1000');
+        const piData = await piRes.json();
+        const piMonthly = Array(12).fill(0);
+        piData.data.forEach(i => piMonthly[new Date(i.posting_date).getMonth()]++);
+        chart.data.datasets[0].data = piMonthly;
 
-   fetch(`/api/resource/Payment%20Entry?filters=[["payment_type","=","Receive"],["outstanding_amount",">",0]]&fields=["outstanding_amount"]&limit_page_length=0`)
-  .then(res => res.json())
-  .then(data => {
-    const totalDue = data.data.reduce((sum, entry) => sum + (entry.outstanding_amount || 0), 0);
-    this.paymentReceiveDueTotal = totalDue;
-  })
-  .catch(err => console.error("Error fetching Payment Entries due (Receive):", err));
+        chart.update();
+      } catch (err) {
+        console.error("Error rendering Invoice chart:", err);
+      }
+    },
 
+    
+  },
 
-  // -----------------Fetch total Payment Entry amount for type 'Pay'------------------
-   fetch(`/api/resource/Payment%20Entry?filters=[["payment_type","=","Pay"]]`)
-  .then(res => res.json())
-  .then(data => {
-    const total = data.data.reduce((sum, entry) => sum + (entry.paid_amount || 0), 0);
-    this.paymentPaidTotal = total;
-  })
-  .catch(err => console.error("Error fetching Payment Entries (Pay):", err));
-  // ------Fetch total Payment Entry due amount for type 'Pay'------
-fetch(`/api/resource/Payment%20Entry?filters=[["payment_type","=","Pay"],["outstanding_amount",">",0]]&fields=["outstanding_amount"]&limit_page_length=0`)
-  .then(res => res.json())
-  .then(data => {
-    const totalDue = data.data.reduce((sum, entry) => sum + (entry.outstanding_amount || 0), 0);
-    this.paymentPayDueTotal = totalDue;
-  })
-  .catch(err => console.error("Error fetching Payment Entries due (Pay):", err));
-
-
-  //------------ Companies-----------------------
-fetch("/api/resource/Company?limit_page_length=0")
-  .then(res => res.json())
-  .then(data => {
-    this.companyCount = data.data.length;
-  });
-  // Purchase Invoices
-fetch("/api/resource/Purchase%20Invoice?limit_page_length=0")
-  .then(res => res.json())
-  .then(data => {
-    this.purchaseInvoiceCount = data.data.length;
-  });
-
-// Journal Entries
-fetch("/api/resource/Journal%20Entry?limit_page_length=0")
-  .then(res => res.json())
-  .then(data => {
-    this.journalEntryCount = data.data.length;
-  });
-
-// Accounts Receivable (report rows count)
-fetch("/api/method/frappe.desk.query_report.run?report_name=Accounts%20Receivable")
-  .then(res => res.json())
-  .then(data => {
-    this.accountsReceivableCount = data.message.result ? data.message.result.length : 0;
-  });
-
-
+  async mounted() {
+    await this.getCurrentUser();
+    await this.getCurrencySymbol();
+    await this.fetchTotals();
+    this.renderInvoiceChart();
+    this.renderAgingCharts();
   },
 };
 </script>
+
 
 
 <style scoped>
@@ -453,6 +308,8 @@ fetch("/api/method/frappe.desk.query_report.run?report_name=Accounts%20Receivabl
   margin-bottom: 20px;
   border-color: #fff;
   border-radius: 8px;
+  padding: 12px;
+  background-color: #566c88;
 }
 
 .user-photo {
@@ -494,7 +351,7 @@ transition: transform 0.2s ease, box-shadow 0.2s ease;
 
 .card:hover {
   transform: translateY(-5px); /* slight lift on hover */
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.30);
 }
 
 .card:active {
@@ -507,13 +364,14 @@ transition: transform 0.2s ease, box-shadow 0.2s ease;
   gap: 20px;
 }
 
-.card h4 {
+.card h6 {
   margin-bottom: 10px;
-   font-size: large;
+   font-size:16px;
 }
 .card p {
-  font-size: 18px;
+  font-size: 28px;
   margin-bottom: 5px;
+  font-weight:500;
 }
 .card .up {
   color: #16a34a;
@@ -523,58 +381,55 @@ transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Graph Section */
-.graph-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-}
-#glGraph {
-  width: 100%;
-  height: 250px;
-}
+.graph-section {
+ 
 
-/* Bottom Row (Calendar + Map side by side) */
-.bottom-row {
-  display: flex;
-  gap: 20px;
-  flex: 1;
-}
-
-.calendar-card,
-.realtime-card {
-  flex: 1;
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-#calendar {
-  flex: 1;
-  height: 100%;
-  min-height: 300px; 
-}
-
-/* World clocks styling */
-.world-clocks {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-around;
-  font-weight: bold;
-  font-size: 12px;
-}
-.world-clocks div {
-  padding: 5px 10px;
-  border-radius: 6px;
-}
-
-#map {
-  flex: 1;
+  margin: auto;     
+  background-color: #fff;
   border-radius: 8px;
-  height: 300px;
-  min-height: 250px;
+  padding: 20px;
+  min-width:100%;
+  
 }
+
+#invoiceTrendChart {
+  height: 650px !important; /* adjust height */
+  width: 100% !important;
+}
+
+
+
+/* Fade-up animation on page load */
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply to cards, graph, calendar, map */
+.card, .graph-section, .calendar-card, .realtime-card {
+  animation: fadeUp 0.8s ease-out;
+  animation-fill-mode: both;
+}
+
+/* Optional: stagger cards */
+.cards-row-a .card:nth-child(1) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(2) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(3) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(4) { animation-delay: 0.1s; }
+.cards-row-b .card:nth-child(5) { animation-delay: 0.2s; }
+.cards-row-b .card:nth-child(6) { animation-delay: 0.2s; }
+.cards-row-b .card:nth-child(7) { animation-delay: 0.2s; }
+.cards-row-b .card:nth-child(8) { animation-delay: 0.2s; }
+
+.graph-section { animation-delay: 0.3s; }
+.calendar-card { animation-delay: 0.4s; }
+.realtime-card { animation-delay: 0.4s; }
+
 </style>

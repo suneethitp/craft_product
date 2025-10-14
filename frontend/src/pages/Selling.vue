@@ -4,13 +4,12 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <!-- User Info -->
-      <div class="user-info">
+       <div class="user-info">
         <img src="/profile.png" alt="User Photo" class="user-photo" />
         <div class="user-name">{{ user.name || "Guest" }}</div>
       </div>
-      <br>
-      <br>
-      <div class="sidebar-heading">Masters & Reports</div>
+      <br><br>
+
       <div
         v-for="module in filteredModules"
         :key="module.name"
@@ -19,357 +18,246 @@
       >
         {{ module.name }}
       </div>
-         <!-- Return Home Button -->
-          <div class="return-home">
-            <button @click="navigateHome" class="home-btn">Back to Home</button>
-          </div>
+
+      <!-- Return Home Button -->
+      <div class="return-home">
+        <button @click="navigateHome" class="home-btn">Back to Home</button>
+      </div>
     </div>
 
     <!-- Main Dashboard -->
     <div class="main-content">
       <!-- Cards Row -->
       <div class="cards-row-a">
-        <div class="card" @click="navigateTo('/app/quotation')">
-          <h4><b>Quotations</b></h4>
-          <p class="down">Pending: <b>{{ quotationPending }}</b></p>
-          <p class="up">Approved: <b>{{ quotationApproved }}</b></p>
+        <div class="card" @click="navigateTo('/app/sales-order')">
+          <h6>ANNUAL SALES</h6>
+          <p><b>{{ currencySymbol }}{{ formattedSalesAmount }}</b></p>
         </div>
 
-    
-          <div class="card" @click="navigateTo('/app/customer')">
-            <h4><b>Customers</b></h4>
-            <p> <b>{{ customerCount }}</b></p>
-          </div>
-        
-
-        <div class="card" @click="navigateTo('/app/sales-partner')">
-          <h4><b>Top Sales Person</b></h4>
-          <p>Name: <b>{{ topSalesPerson.name }}</b></p>
-          <p>Sales: <b>{{ topSalesPerson.sales }}</b></p>
-          <p class="up">Target: <b>{{ topSalesPerson.target }}</b></p>
+        <div class="card" @click="navigateTo('/app/sales-order/view/list?status=To Deliver')">
+          <h6>SALES ORDERS TO DELIVER</h6>
+          <p><b>{{ totalSalesOrderToDeliverCount }}</b></p>
         </div>
 
+        <div class="card" @click="navigateTo('/app/sales-order/view/list?status=To Bill')">
+          <h6>SALES ORDERS TO BILL</h6>
+          <p><b>{{ totalSalesOrderToBillCount }}</b></p>
+        </div>
 
-      <div class="card" @click="navigateTo('/app/sales-person')">
-        <h4><b>Sales person</b></h4>
-        <p>Total Members: <b>{{ teamMemberCount }}</b></p>
-        <p  >Total Sales: <b>{{ teamSales }}</b></p>
-        <p>Conversion Rate: <b>{{ conversionRate }}%</b></p>
+        <div class="card" @click="navigateTo('/app/customer')">
+          <h6>ACTIVE CUSTOMERS</h6>
+          <p><b>{{ activeCustomerCount }}</b></p>
+        </div>
       </div>
 
-      </div>
-     <div class="graph">
+      <!-- Sales Order Trend -->
+      <div class="graph">
         <div class="graph-section">
           <h4><b>Sales Order Trend</b></h4>
           <canvas id="soTrendChart"></canvas>
         </div>
       </div>
 
-
-      <!-- Bottom Section (Calendar + Map) -->
+      <!-- Bottom Section -->
       <div class="bottom-row">
-        <!-- Calendar -->
-        <div class="calendar-card">
-          <h4><b>Calendar</b></h4>
-          <div id="calendar"></div>
-        </div>
+        <!-- Top Customers -->
+          <div class="chart-card">
+    <h3 class="card-title"><b>Top Customers</b></h3>
+    <div class="chart-wrapper top-customers-wrapper">
+      <canvas id="topCustomersChart"></canvas>
+    </div>
+  </div>
 
-        <!-- Real-Time Map -->
-        <div class="realtime-card">
-          <h4>Real-Time Map</h4>
-          <div id="map"></div>
-          <div class="world-clocks">
-            <div>USA (NY): <span id="usa-time"></span></div>
-            <div>UK: <span id="uk-time"></span></div>
-            <div>UAE: <span id="uae-time"></span></div>
-            <div>India: <span id="india-time"></span></div>
-          </div>
-        </div>
+        <!-- Sales Order Analysis -->
+  <!-- Doughnut Chart -->
+  <div class="chart-card">
+    <h3 class="card-title"><b>Sales Order Analysis</b></h3>
+    <div class="chart-wrapper doughnut-wrapper">
+      <canvas id="salesOrderChart"></canvas>
+    </div>
+  </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+
+
 export default {
   name: "DashboardPage",
   data() {
     return {
-      searchQuery: "",
-      user: {
-        name: "",
-        photo: "",
-      },
+      user: { name: "", photo: "" },
       defaultPhoto: "https://i.pravatar.cc/100",
-      filteredModules: [
-        { name: "Module 1", url: "/module1" },
-        { name: "Module 2", url: "/module2" },
-      ],
       search: "",
-      quotationPending: 0,
-      quotationApproved: 0,
-      customerCount: 0,
-      topSalesPerson: {
-        name: "Loading...",
-        sales: 0,
-        target: 0
-      },
-      teamMemberCount: 0,
-      teamSales: 0,
-      conversionRate: 0,
       modules: [
-        { name: "Customer", url: "/app/customer"  },
-        { name:  "Quotation", url: "/app/quotation" },
+        { name: "Customer", url: "/app/customer" },
+        { name: "Quotation", url: "/app/quotation" },
         { name: "Sales Order", url: "/app/sales-order" },
-        { name:  "Sales Invoice" , url: "/app/sales-invoice"},
-        { name:  "Blanket Order", url:"/app/blanket-order"},
-        { name: "Sales Partner" , url: "/app/sales-partner" },
-        { name: "Sales Person" , url: "/app/sales-person" },
+        { name: "Sales Invoice", url: "/app/sales-invoice" },
+        { name: "Blanket Order", url:"/app/blanket-order" },
+        { name: "Sales Partner", url: "/app/sales-partner" },
+        { name: "Sales Person", url: "/app/sales-person" },
       ],
-
+      annualSalesAmount: 0,
+      currencySymbol: "₹",
+      totalSalesOrderToDeliverCount: 0,
+      totalSalesOrderToBillCount: 0,
+      activeCustomerCount: 0,
     };
   },
   computed: {
     filteredModules() {
-      
       if (!this.search) return this.modules;
       const searchLower = this.search.toLowerCase();
-      return this.modules.filter((m) =>
-        m.name.toLowerCase().includes(searchLower)
-      );
+      return this.modules.filter(m => m.name.toLowerCase().includes(searchLower));
     },
+    formattedSalesAmount() {
+      let amount = this.annualSalesAmount;
+      let suffix = "";
+      if (amount >= 1_00_00_000) { amount = amount / 1_00_00_000; suffix = " Cr"; }
+      else if (amount >= 1_00_000) { amount = amount / 1_00_000; suffix = " L"; }
+      return amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + suffix;
+    }
   },
   methods: {
     navigateTo(url) {
       if (url) window.location.href = url;
     },
-       navigateHome() {
-      window.location.href = "/home" 
-  },
-    formatCurrency(value) {
-    if (!value) return "0";
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
-  },
-    formatCurrency(value) {
-    if (!value) return "0";
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
-  },
-  async getCurrentUser() {
+    navigateHome() { window.location.href = "/home"; },
+
+    async getCurrentUser() {
       try {
-        // ERPNext: Get current user
         const res = await fetch("/api/method/frappe.auth.get_logged_user");
         const data = await res.json();
         const userEmail = data.message;
-
-        // Fetch full user info
         const userRes = await fetch(`/api/resource/User/${userEmail}`);
         const userData = await userRes.json();
-
         this.user.name = userData.data.full_name;
-        this.user.photo = userData.data.user_image; // should be URL or base64
-      } catch (err) {
-        console.error("Error fetching user info:", err);
-      }
+        this.user.photo = userData.data.user_image;
+      } catch (err) { console.error("Error fetching user info:", err); }
+    },
+//--------------------------------------Top Customer-----------------------------------
+    async fetchTopCustomers() {
+      try {
+        const res = await fetch('/api/resource/Sales%20Invoice?filters=[["docstatus","=",1]]&fields=["customer","base_grand_total"]&limit_page_length=1000');
+        const data = await res.json();
+        if (!data.data || data.data.length === 0) return { labels: [], totals: [] };
+
+        const customerTotals = {};
+        data.data.forEach(inv => {
+          if (!inv.customer || !inv.base_grand_total) return;
+          customerTotals[inv.customer] = (customerTotals[inv.customer] || 0) + parseFloat(inv.base_grand_total);
+        });
+
+        const sorted = Object.entries(customerTotals)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10);
+
+        return { labels: sorted.map(item => item[0]), totals: sorted.map(item => item[1]) };
+      } catch(err) { console.error("Error fetching top customers:", err); return { labels: [], totals: [] }; }
     },
 
-  },
-  mounted() {
 
-    this.getCurrentUser();
-// // ---------- Sales Order Trend -------------
+    async renderTopCustomersChart() {
+      const { labels, totals } = await this.fetchTopCustomers();
+      if (labels.length === 0) return;
 
-const ctx = document.getElementById("soTrendChart").getContext("2d");
-
-const futureSOData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  datasets: [{
-    label: "Sales Orders Trend",
-    data: [10, 15, 12, 18, 20, 17, 14, 19, 22, 16, 18, 20], // Dummy values
-    // backgroundColor: "rgba(54, 162, 235, 0.5)",
-    borderColor: "rgba(54, 162, 235, 1)",
-    borderWidth: 1,
-    fill: true,
-    tension: 0.4
-  }]
-};
-
-new Chart(ctx, {
-  type: "line",
-  data:  futureSOData,
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: true, position: "top" },
-      title: { display: true, text: "Sales Order Trend" }
+      const ctx = document.getElementById('topCustomersChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Total Sales', data: totals, backgroundColor: 'rgba(211,211,211,0.7)', borderColor: 'rgba(211,211,211,1)', borderWidth: 1, borderRadius: 5 }] },
+        options: { responsive: true, plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Sales Amount (₹)' } }, x: { title: { display: true, text: 'Customer' }, ticks: { maxRotation: 45, minRotation: 0 } } } }
+      });
     },
-    scales: {
-      y: { beginAtZero: true, title: { display: true, text: "Number of SOs" } },
-      x: { title: { display: true, text: "Month" } }
-    }
-  }
-});
-    // // FullCalendar init
-    const calendarEl = document.getElementById("calendar");
-    const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: "dayGridMonth",
-      height: "100",
-      events: [
-        // { title: "", date: "2025-10-05" },
-        // { title: "", date: "2025-10-12" },
-        // { title: "", date: "2025-10-18" },
+//----------------------------------sales order trend-------------------------------------------------
+    async renderSalesOrderTrendChart() {
+      const ctx = document.getElementById("soTrendChart").getContext("2d");
+      const soChart = new Chart(ctx, {
+        type: "line",
+        data: { labels: Array.from({length:12}, (_,i)=> new Date(0, i).toLocaleString('default', {month:'short'})), datasets: [{ label: "Sales Orders", data: Array(12).fill(0), borderColor: "rgba(255, 99, 132, 1)", backgroundColor: "rgba(255, 99, 132, 0.2)", fill: true, tension: 0.3 ,borderWidth: 0.8,}] },
+        options: { responsive: true, plugins: { legend: { display: true, position: "top" }, title: { display: true, text: "Sales Order Trend" } }, scales: { y: { beginAtZero: true, title: { display: true, text: "Number of Sales Orders" } }, x: { title: { display: true, text: "Month" } } } }
+      });
 
-      ],
-    });
-    calendar.render();
+      try {
+        const response = await fetch("/api/resource/Sales Order?fields=[\"transaction_date\"]&limit_page_length=1000");
+        const result = await response.json();
+        if (result.data && result.data.length > 0) {
+          const monthlyCount = Array(12).fill(0);
+          result.data.forEach(so => { if(so.transaction_date) monthlyCount[new Date(so.transaction_date).getMonth()]++; });
+          soChart.data.datasets[0].data = monthlyCount;
+          soChart.update();
+        }
+      } catch(err) { console.error("Error fetching Sales Orders:", err); }
+    },
+    //-----------------------------sales order analysis------------------------------------------------------------
 
+    async renderSalesOrderAnalysisChart() {
+      const ctx = document.getElementById('salesOrderChart').getContext('2d');
+      try {
+        const res = await fetch(`/api/resource/Sales%20Order?filters=[["docstatus","=",1]]&fields=["base_grand_total","per_billed"]&limit_page_length=0`);
+        const data = await res.json();
+        let billed = 0, toBill = 0;
+        if(data.data) data.data.forEach(so => { const total = parseFloat(so.base_grand_total)||0; const billedPart = total*(parseFloat(so.per_billed)||0)/100; billed+=billedPart; toBill+=total-billedPart; });
+        new Chart(ctx, { type:'doughnut', data:{ labels:['Billed','To Bill'], datasets:[{ data:[billed,toBill], backgroundColor:['#fc869f','#D3D3D3'], hoverOffset:6 }] }, options:{ cutout:'70%', responsive:true, plugins:{ legend:{ position:'bottom', labels:{ generateLabels:chart=>{ const data=chart.data.datasets[0].data; const labels=chart.data.labels; return labels.map((label,i)=>({ text:`${label}: ₹${data[i].toLocaleString('en-IN',{minimumFractionDigits:2, maximumFractionDigits:2})}`, fillStyle:chart.data.datasets[0].backgroundColor[i], strokeStyle:chart.data.datasets[0].backgroundColor[i], index:i })); } } }, tooltip:{ callbacks:{ label:ctx=>`${ctx.label}: ₹${ctx.raw.toLocaleString('en-IN',{minimumFractionDigits:2, maximumFractionDigits:2})}` } } } } });
+      } catch(err){ console.error("Error rendering Sales Order Analysis:", err);}
+    },
 
-
-    // ---------------Initialize map------------------------------
-const map = L.map("map", { zoomControl: true }).setView([20, 20], 2);
-
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap contributors",
-}).addTo(map);
-
-// Live User marker (random movement)
-const liveMarker = L.marker([20, 77]).addTo(map).bindPopup("Live User");
-
-setInterval(() => {
-  const lat = 20 + Math.random() * 5;
-  const lng = 77 + Math.random() * 5;
-  liveMarker.setLatLng([lat, lng]);
-}, 3000);
-
-// World Clock Data
-const countries = [
-  
-  { name: "USA (New York)", coords: [40.7128, -74.0060], tz: "America/New_York", elId: "usa-time" },
-  { name: "UK", coords: [51.5074, -0.1278], tz: "Europe/London", elId: "uk-time" },
-  { name: "UAE", coords: [24.4539, 54.3773], tz: "Asia/Dubai", elId: "uae-time" },
-  { name: "India", coords: [20.5937, 78.9629], tz: "Asia/Kolkata", elId: "india-time" }
-];
-
-// Add markers
-const countryMarkers = countries.map(c => {
-  const time = new Date().toLocaleTimeString("en-US", { timeZone: c.tz });
-  // Set initial clock
-  const el = document.getElementById(c.elId);
-  if (el) el.innerText = time;
-
-  return L.marker(c.coords)
-    .addTo(map)
-    .bindPopup(`${c.name}: ${time}`);
-});
-
-// Update clocks and marker popups every second
-setInterval(() => {
-  countryMarkers.forEach((marker, i) => {
-    const c = countries[i];
-    const time = new Date().toLocaleTimeString("en-US", { timeZone: c.tz });
-    marker.setPopupContent(`${c.name}: ${time}`);
-    const el = document.getElementById(c.elId);
-    if (el) el.innerText = time;
-  });
-}, 1000);
-
-
-
-  fetch(
-      `/api/resource/Quotation?filters=[["status","=","Draft"]]&fields=["name"]&limit_page_length=0`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        this.quotationPending = data.data.length;
-      })
-      .catch((err) =>
-        console.error("Error fetching pending Quotations:", err)
-      );
-
-    // ---------- Fetch Approved Quotations -------------
-    fetch(
-      `/api/resource/Quotation?filters=[["status","=","Approved"]]&fields=["name"]&limit_page_length=0`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        this.quotationApproved = data.data.length;
-      })
-      .catch((err) =>
-        console.error("Error fetching approved Quotations:", err)
-      );
-
-          // ---------- Fetch Total Customers -------------
-    fetch(`/api/resource/Customer?fields=["name"]&limit_page_length=0`)
-      .then((res) => res.json())
-      .then((data) => {
-        this.customerCount = data.data.length;
-      })
-      .catch((err) => console.error("Error fetching Customers:", err));
     
 
-    // Example: fetch total sales per salesperson from Sales Invoice
-    fetch('/api/resource/Sales%20Invoice?fields=["owner","grand_total"]&limit_page_length=100')
-      .then(res => res.json())
-      .then(data => {
-        const salesData = {};
+    async fetchDashboardCounts() {
+      // Annual Sales
+      const currentYear = new Date().getFullYear();
+      try {
+        const res = await fetch(`/api/resource/Sales%20Order?filters=[["docstatus","=",1],["transaction_date",">=","${currentYear}-01-01"],["transaction_date","<=","${currentYear}-12-31"]]&fields=["grand_total"]&limit_page_length=0`);
+        const data = await res.json();
+        this.annualSalesAmount = data.data.reduce((sum, o)=>sum+(parseFloat(o.grand_total)||0),0);
+      } catch(err){ console.error(err); }
 
-        // Sum sales per owner
-        data.data.forEach(invoice => {
-          const owner = invoice.owner;
-          const total = parseFloat(invoice.grand_total) || 0;
-          if (!salesData[owner]) salesData[owner] = 0;
-          salesData[owner] += total;
-        });
+      // To Deliver
+      try {
+        const res = await fetch('/api/resource/Sales%20Order?filters=[["docstatus","=",1],["status","in",["To Deliver","To Deliver and Bill"]]]&fields=["name"]&limit_page_length=0');
+        const data = await res.json();
+        this.totalSalesOrderToDeliverCount = data.data.length;
+      } catch(err){ console.error(err); }
 
-        // Find top salesperson
-        let topPerson = { name: "", sales: 0 };
-        for (let [owner, total] of Object.entries(salesData)) {
-          if (total > topPerson.sales) {
-            topPerson.name = owner;
-            topPerson.sales = total;
-          }
-        }
+      // To Bill
+      try {
+        const res = await fetch('/api/resource/Sales%20Order?filters=[["docstatus","=",1],["status","in",["To Bill","To Deliver and Bill"]]]&fields=["name"]&limit_page_length=0');
+        const data = await res.json();
+        this.totalSalesOrderToBillCount = data.data.length;
+      } catch(err){ console.error(err); }
 
-        // Example: assume target is 100,000
-        topPerson.target = 100000;
+      // Active Customers
+      try {
+        const res = await fetch('/api/resource/Customer?fields=["name","disabled"]&limit_page_length=0');
+        const data = await res.json();
+        this.activeCustomerCount = data.data.filter(c=>c.disabled===0||c.disabled===false).length;
+      } catch(err){ console.error(err); }
+    },
 
-        this.topSalesPerson = topPerson;
-      })
-      .catch(err => console.error("Error fetching Sales Invoices:", err));
-
-       // ---------- Fetch Team Members ----------
-    fetch('/api/resource/Sales%20Person?fields=["name"]&limit_page_length=0')
-      .then(res => res.json())
-      .then(data => {
-        this.teamMemberCount = data.data.length;
-      })
-      .catch(err => console.error("Error fetching Sales Team members:", err));
-
-    // ---------- Fetch Total Team Sales ----------
-    fetch('/api/resource/Sales%20Invoice?fields=["owner","grand_total"]&limit_page_length=100')
-      .then(res => res.json())
-      .then(data => {
-        let totalSales = 0;
-        data.data.forEach(invoice => {
-          totalSales += parseFloat(invoice.grand_total) || 0;
-        });
-        this.teamSales = totalSales;
-      })
-      .catch(err => console.error("Error fetching Sales Invoices:", err));
-
-    // ---------- Fetch Conversion Rate ----------
-    // Conversion Rate = Quotations Converted / Total Quotations * 100
-    fetch('/api/resource/Quotation?fields=["status"]&limit_page_length=0')
-      .then(res => res.json())
-      .then(data => {
-        const totalQuotations = data.data.length;
-        const converted = data.data.filter(q => q.status === "Ordered").length; // ERPNext sets status "Ordered" after converted to sales order
-        this.conversionRate = totalQuotations > 0 ? ((converted / totalQuotations) * 100).toFixed(1) : 0;
-      })
-      .catch(err => console.error("Error fetching Quotations:", err));
-
+    async fetchCompanyCurrency() {
+      try {
+        const res = await fetch('/api/resource/Company?fields=["default_currency"]&limit_page_length=1');
+        const data = await res.json();
+        const symbols = { INR:"₹", USD:"$", EUR:"€", GBP:"£" };
+        if(data.data && data.data.length>0) this.currencySymbol = symbols[data.data[0].default_currency]||data.data[0].default_currency;
+      } catch(err){ console.error(err); }
+    }
   },
+
+  async mounted() {
+    await this.getCurrentUser();
+    await this.fetchDashboardCounts();
+    await this.fetchCompanyCurrency();
+    this.renderTopCustomersChart();
+    this.renderSalesOrderTrendChart();
+    this.renderSalesOrderAnalysisChart();
+  }
 };
 </script>
+
 
 
 <style scoped>
@@ -456,6 +344,8 @@ setInterval(() => {
   margin-bottom: 20px;
   border-color: #fff;
   border-radius: 8px;
+  padding: 12px;
+  background-color: #566c88;
 }
 
 .user-photo {
@@ -497,7 +387,7 @@ transition: transform 0.2s ease, box-shadow 0.2s ease;
 
 .card:hover {
   transform: translateY(-5px); /* slight lift on hover */
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.30);
 }
 
 .card:active {
@@ -510,13 +400,14 @@ transition: transform 0.2s ease, box-shadow 0.2s ease;
   gap: 20px;
 }
 
-.card h4 {
+.card h6 {
   margin-bottom: 10px;
-  font-size: large;
+   font-size:16px;
 }
 .card p {
-  font-size: 18px;
+  font-size: 28px;
   margin-bottom: 5px;
+  font-weight:500;
 }
 .card .up {
   color: #16a34a;
@@ -543,48 +434,80 @@ transition: transform 0.2s ease, box-shadow 0.2s ease;
   height: 500px !important; /* adjust height */
   width: 100% !important;
 }
-
-/* Bottom Row (Calendar + Map side by side) */
+/* Bottom Row - Two Charts in One Row */
 .bottom-row {
   display: flex;
   gap: 20px;
-  flex: 1;
+  flex-wrap: wrap;        /* keep it responsive on smaller screens */
+  justify-content: space-between; /* distribute space equally */
 }
 
-.calendar-card,
-.realtime-card {
-  flex: 1;
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+.chart-card, .doughnut-card {
+  flex: 1 1 48%;           /* take equal width, allow shrinking if needed */
+  min-width: 300px;        /* prevent too small on mobile */
+  max-width: 48%;           /* prevent stretching too much */
+  height: 450px;           /* fixed height */
   display: flex;
   flex-direction: column;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
-#calendar {
+/* General chart wrapper */
+.chart-wrapper {
   flex: 1;
-  height: 100%;
-  min-height: 300px; 
-}
-
-/* World clocks styling */
-.world-clocks {
-  margin-top: 10px;
   display: flex;
-  justify-content: space-around;
-  font-weight: bold;
-  font-size: 12px;
-}
-.world-clocks div {
-  padding: 5px 10px;
-  border-radius: 6px;
+  justify-content: center;  /* center horizontally */
+  align-items: center;      /* default vertical center */
 }
 
-#map {
-  flex: 1;
-  border-radius: 8px;
-  height: 300px;
-  min-height: 250px;
+/* Top Customers chart - push slightly down */
+.top-customers-wrapper {
+  align-items: flex-start;   /* start from top */
+  padding-top: 40px;         /* push down from top */
 }
+
+/* Doughnut chart - fully centered */
+.doughnut-wrapper {
+  align-items: center;       /* perfectly centered vertically */
+}
+
+
+
+.chart-wrapper canvas {
+  max-width: 100%;
+  max-height: 300px; /* adjust as needed */
+}
+
+
+/* Fade-up animation on page load */
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply to cards, graph, calendar, map */
+.card, .graph-section, .chart-card{
+  animation: fadeUp 0.8s ease-out;
+  animation-fill-mode: both;
+}
+
+/* Optional: stagger cards */
+.cards-row-a .card:nth-child(1) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(2) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(3) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(4) { animation-delay: 0.1s; }
+
+.graph-section { animation-delay: 0.2s; }
+.chart-card{ animation-delay: 0.2s; }
+
 </style>

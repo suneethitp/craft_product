@@ -149,8 +149,8 @@ export default {
 .search-box {
   width: 100%;
   padding: 10px 12px 10px 40px;
-  border: 1px solid #fbf8f8;
-  background-color: #fafafa;
+  border: 1px  #8dd8fb;
+  background-color: rgba(226, 232, 240, 0.85);
   border-radius: 10px;
   font-size: 16px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);

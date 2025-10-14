@@ -1,171 +1,4 @@
-<!-- <template>
-  <div class="buying-page">
-    <h2 class="buying-heading">
-      <img src="/check-out.png" alt="buying Icon" class="heading-icon" />
-       Buying
-    </h2>
 
-    <div class="masters-container">
-      <h3 class="inner-title"><u>Masters & Reports</u></h3>
-
-      <div 
-        v-for="(shortcut, index) in shortcuts" 
-        :key="index"  
-        @click="goToMasters(shortcut.route)"
-        class="master-link"
-      >
-        <span class="masters-name">
-          {{ shortcut.name }}
-          <img src="/arrow-up-right.svg" alt="arrow" class="arrow-icon" />
-        </span>
-      </div>
-    </div>
-    <button class="back-home-btn" @click="goHome">Back to Home</button>
-  </div>
-</template>
-
-
-
-<script>
-export default {
-  name: "Accounting",
-  data() {
-    return {
-   
-      shortcuts: [
-        { name: "Material Request",route: "/app/material-request" },
-        { name: "Purchase Order",  route: "/app/purchase-order" },
-        { name: "Purchase Invoice",  route: "/app/purchase-invoice" },
-        { name: "Request for Quotation" , route: "/app/request-for-quotation" },
-        { name: "Supplier Quotation", route: "/app/supplier-quotation" },
-        
-      ],
-    };
-  },
-  methods: {
-  goToMasters(route) {
-    console.log("Redirecting to:", route);
-    window.location.href = route;
-  },
-  goHome() {
-      window.location.href = "/home"
-    },
-},
-  
-
-};
-</script>
-
-
-<style>
-.buying-page { 
-    display: flex; 
-    flex-direction:
-    column; align-items: center;
-     justify-content: flex-start;
-      min-height: 100vh; 
-      background-color: #cbd5e1; 
-      padding-top: 30px; 
-    } 
-.buying-page h2 { 
-        font-size: 36px; 
-        color: #1c283a;
-        font-weight: 600; 
-        margin-bottom: 30px; 
-        text-align: center;
-        max-width: 1400px; 
-        width: 100%;
-        text-shadow: 2px 2px 6px rgba(250, 249, 249, 0.8); 
-
-     }
-
-
-.buying-heading {
-  display: flex;
-  align-items: center;
-  justify-content: center; 
-  gap: 12px; 
-  font-size: 36px;
-  color: #1c283a;
-  font-weight: 600;
-  margin-bottom: 30px;
-  text-shadow: 2px 2px 6px rgba(250, 249, 249, 0.8);
-}
-
-.heading-icon {
-  width: 40px;   
-  height: 40px;
-}
-
-.masters-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 40px 50px;
-  background-color: #e0e7ef;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 550px;          
-  height: 550px;          
-  overflow-y: auto;      
-  align-items: flex-start;
-}
-
-.inner-title {
-  width: 100%;
-  text-align: center;
-  font-size: 24px;
-  font-weight: 600;
-  color: #1c283a;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 6px rgba(250, 249, 249, 0.8);
-}
-
-
-
-.master-link:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.masters-name {
-  font-size: 18px;
-  font-weight: 500;
-  color: #333;
-  line-height: 1.2;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.arrow-icon {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.3s ease;
-}
-
-.master-link:hover .arrow-icon {
-  transform: translateX(4px);
-}
-.back-home-btn {
-  margin-top: 40px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  background-color: #e0e7ef;
-  color: #1c283a;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.back-home-btn:hover {
-  background-color: #dae7f7;
-}
-
-
-</style> -->
 <template>
   <div class="dashboard-container">
 
@@ -178,6 +11,8 @@ export default {
       </div>
       <br>
       <br>
+
+
       <div class="sidebar-heading">Masters & Reports</div>
       <div
         v-for="module in filteredModules"
@@ -187,44 +22,39 @@ export default {
       >
         {{ module.name }}
       </div>
-         <!-- Return Home Button -->
+      <br>
+      <br>
+
+            <!-- Return Home Button -->
           <div class="return-home">
             <button @click="navigateHome" class="home-btn">Back to Home</button>
           </div>
+ 
     </div>
 
     <!-- Main Dashboard -->
     <div class="main-content">
-          
+      <br>
       <!-- Cards Row -->
       <div class="cards-row-a">
-      <div class="card">
-        <h4><b>Roles</b></h4>
-        <p>Total: <b id="roleCount">0</b></p>
-      </div>
-
-
-        <div class="card">
-          <h4><b>Purchase Orders</b></h4>
-          <p>Total: <b>{{ purchaseOrderCount }}</b></p>
-          <p class="up">Received: <b>{{ purchaseOrderReceived }}</b></p>
+       <div class="card" @click="navigateTo('/app/role')">
+          <h6>TOTAL ROLES</h6>
+          <p><b>{{ rolesCount }}</b></p>
         </div>
 
-      <div class="card">
-          <h4><b>Purchase Invoices</b></h4>
-          <p>Total: <b>{{ purchaseInvoiceCount }}</b></p>
-          <p class="down">Overdue: <b>{{ purchaseInvoiceOverdue }}</b></p>
+        <div class="card" @click="navigateTo('/app/user')">
+          <h6>TOTAL USERS</h6>
+          <p>  <b>{{ userCount }}</b></p> 
         </div>
 
-       <div class="card">
-        <h4><b>Request for Quotation</b></h4>
-        <p class="up">Approved: <b>{{ rfqApprovedCount }}</b></p>
-      </div>
-      </div>
-     <div class="graph">
-        <div class="graph-section">
-          <h4><b>Purchase Order Trend</b></h4>
-          <canvas id="poTrendChart"></canvas>
+        <div class="card" @click="navigateTo('/app/module-profile')">
+          <h6>TOTAL MODULE PROFILE</h6>
+          <p ><b>{{ moduleProfileCount }}</b></p>
+        </div>
+
+        <div class="card" @click="navigateTo('/app/role-profile')">
+          <h6>TOTAL ROLE PROFILE</h6>
+          <p > <b>{{ roleProfileCount }}</b></p>
         </div>
       </div>
 
@@ -268,20 +98,18 @@ export default {
         { name: "Module 2", url: "/module2" },
       ],
       search: "",
-
-      materialRequestReady: 0,     
-      purchaseOrderCount: 0,
-      purchaseOrderReceived: 0,
-      purchaseInvoiceCount: 0,
-      purchaseInvoiceOverdue: 0,
-      rfqApprovedCount: 0,
+      rolesCount: 0, 
+      userCount: 0,   
+      moduleProfileCount: 0,
+      mostUsedModuleProfile: ""  ,
+      roleProfileCount:0,
+      usersWithRoleProfile: 0 ,
       modules: [
         { name: "User", url: "/app/user" },
         { name: "Role", url: "/app/role" },
         { name: "Role Profile", url: "/app/role-profile" },
         { name: "Module Profile", url: "/app/module-profile" },
         { name: "Permission Manager", url: "/app/permission-manager" },
-        
       ],
 
     };
@@ -299,8 +127,8 @@ export default {
   methods: {
     navigateTo(url) {
       if (url) window.location.href = url;
-    },
-       navigateHome() {
+    },  
+    navigateHome() {
       window.location.href = "/home" 
   },
     formatCurrency(value) {
@@ -312,59 +140,28 @@ export default {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
   },
   async getCurrentUser() {
-      try {
-        // ERPNext: Get current user
-        const res = await fetch("/api/method/frappe.auth.get_logged_user");
-        const data = await res.json();
-        const userEmail = data.message;
+        try {
+          // ERPNext: Get current user
+          const res = await fetch("/api/method/frappe.auth.get_logged_user");
+          const data = await res.json();
+          const userEmail = data.message;
 
-        // Fetch full user info
-        const userRes = await fetch(`/api/resource/User/${userEmail}`);
-        const userData = await userRes.json();
+          // Fetch full user info
+          const userRes = await fetch(`/api/resource/User/${userEmail}`);
+          const userData = await userRes.json();
 
-        this.user.name = userData.data.full_name;
-        this.user.photo = userData.data.user_image; // should be URL or base64
-      } catch (err) {
-        console.error("Error fetching user info:", err);
-      }
+          this.user.name = userData.data.full_name;
+          this.user.photo = userData.data.user_image; // should be URL or base64
+        } catch (err) {
+          console.error("Error fetching user info:", err);
+        }
     },
 
   },
+ 
+
   mounted() {
-
     this.getCurrentUser();
-    // ---------- Purchase Order Trend -------------
-const ctx = document.getElementById("poTrendChart").getContext("2d");
-
-// Example future POs per month
-const futurePOData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  datasets: [{
-    label: " Purchase Orders Trend",
-    data: [5, 8, 10, 7, 12, 9, 6, 11, 14, 8, 10, 7], // Dummy values
-    // backgroundColor: "rgba(54, 162, 235, 0.5)",
-    borderColor: "rgba(54, 162, 235, 1)",
-    borderWidth: 1,
-    fill: true,
-    tension: 0.4
-  }]
-};
-
-new Chart(ctx, {
-  type: "line",
-  data: futurePOData,
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: true, position: "top" },
-      title: { display: true, text: "Future Purchase Order Trend" }
-    },
-    scales: {
-      y: { beginAtZero: true, title: { display: true, text: "Number of POs" } },
-      x: { title: { display: true, text: "Month" } }
-    }
-  }
-});
     // // FullCalendar init
     const calendarEl = document.getElementById("calendar");
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
@@ -378,7 +175,6 @@ new Chart(ctx, {
       ],
     });
     calendar.render();
-
 
 
     // ---------------Initialize map------------------------------
@@ -429,85 +225,99 @@ setInterval(() => {
   });
 }, 1000);
 
-// -------rolecount------------------------------
-
-fetch("/api/method/frappe.client.get_list", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Frappe-CSRF-Token": frappe.csrf_token
-  },
-  body: JSON.stringify({
-    doctype: "Role",
-    fields: ["name"],
-    limit_page_length: 5000 // get all roles
-  })
-})
-.then(res => res.json())
-.then(data => {
-  const count = data.message.length; // total number of roles
-  document.getElementById("roleCount").innerText = count;
-})
-.catch(err => console.error("Error fetching roles:", err));
 
 
+// ----------- Count of Roles -------------
 
-  // ---------- Fetch Pending Material Requests -------------
-  fetch(`/api/resource/Material%20Request?filters=[["status","=","Pending"]]&fields=["name"]&limit_page_length=0`)
-    .then(res => res.json())
-    .then(data => {
-      this.materialRequestPending = data.data.length;
-    })
-    .catch(err => console.error("Error fetching pending Material Requests:", err));
+  fetch("/api/resource/Role?fields=['name']")
+  .then(res => res.json())
+  .then(data => {
+    this.rolesCount = data.data.length; // still 20 if paginated
+  });
 
-  // ---------- Fetch Ready for Transfer Material Requests -------------
-  fetch(`/api/resource/Material%20Request?filters=[["status","=","Ready for Transfer"]]&fields=["name"]&limit_page_length=0`)
-    .then(res => res.json())
-    .then(data => {
-      this.materialRequestReady = data.data.length;
-    })
-    .catch(err => console.error("Error fetching ready Material Requests:", err));
-// ----------- Fetch Total Purchase Orders -----------
-    fetch("/api/resource/Purchase%20Order?limit_page_length=0")
+// Better: use count API
+    fetch("/api/resource/Role?limit_page_length=0")
       .then(res => res.json())
       .then(data => {
-        this.purchaseOrderCount = data.data.length;
-      })
-      .catch(err => console.error("Error fetching Purchase Orders:", err));
+        this.rolesCount = data.data.length; 
+      });
+//----------------------count of User-----------------------
 
-    // ----------- Fetch Received Purchase Orders -----------
-    fetch(`/api/resource/Purchase%20Order?filters=[["status","=","Completed"]]&fields=["name"]&limit_page_length=0`)
+  fetch("/api/resource/User?fields=['name']")
+  .then(res => res.json())
+  .then(data => {
+    this.userCount = data.data.length; // still 20 if paginated
+  });
+
+// Better: use count API
+    fetch("/api/resource/User?limit_page_length=0")
       .then(res => res.json())
       .then(data => {
-        this.purchaseOrderReceived = data.data.length;
-      })
-      .catch(err => console.error("Error fetching Received Purchase Orders:", err));
+        this.userCount = data.data.length; 
+      });
+     // Fetch total Module Profiles
+      fetch("/api/resource/Module Profile?limit_page_length=0")
+        .then(res => res.json())
+        .then(data => {
+          this.moduleProfileCount = data.data.length;
 
-// ----------- Fetch Total Purchase Invoices -----------
-      fetch("/api/resource/Purchase%20Invoice?limit_page_length=0")
-        .then(res => res.json())
-        .then(data => {
-          this.purchaseInvoiceCount = data.data.length;
-        })
-        .catch(err => console.error("Error fetching Purchase Invoices:", err));
+          // Now find the most used module profile
+          let profileUsagePromises = data.data.map(profile => {
+            // Count number of users assigned to this module profile
+            return fetch(`/api/resource/User?fields=['name']&filters=[["module_profile","=","${profile.name}"]]`)
+              .then(res => res.json())
+              .then(usersData => ({ 
+                profileName: profile.name, 
+                count: usersData.data.length 
+              }));
+          });
 
-      // ----------- Fetch Overdue Purchase Invoices -----------
-      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-      fetch(`/api/resource/Purchase%20Invoice?filters=[["due_date","<","${today}"],["outstanding_amount",">",0]]&fields=["name"]&limit_page_length=0`)
-        .then(res => res.json())
-        .then(data => {
-          this.purchaseInvoiceOverdue = data.data.length;
+          // Wait for all counts
+          Promise.all(profileUsagePromises).then(results => {
+            // Sort by count descending
+            results.sort((a, b) => b.count - a.count);
+            if(results.length > 0) {
+              this.mostUsedModuleProfile = results[0].profileName;
+            }
+          });
         })
-        .catch(err => console.error("Error fetching overdue Purchase Invoices:", err));
-// ----------- Fetch Approved RFQs -----------
-      fetch(`/api/resource/Request%20for%20Quotation?filters=[["status","=","Approved"]]&fields=["name"]&limit_page_length=0`)
-        .then(res => res.json())
-        .then(data => {
-          this.rfqApprovedCount = data.data.length;
-        })
-        .catch(err => console.error("Error fetching Approved RFQs:", err));
-        
- 
+        .catch(err => console.error(err));
+
+
+
+    // -----------Fetch  total and used role profile------------------------
+  
+  fetch("/api/resource/Role Profile?fields=['name']")
+  .then(res => res.json())
+  .then(data => {
+    this.roleProfileCount = data.data.length; // still 20 if paginated
+  });
+
+// Better: use count API
+    fetch("/api/resource/Role Profile?limit_page_length=0")
+      .then(res => res.json())
+      .then(data => {
+        this.roleProfileCount = data.data.length; 
+      });
+      
+// // Count users that have a role profile assigned
+//       fetch("/api/resource/User?fields=['name','role_profile']")
+//         .then(res => res.json())
+//         .then(data => {
+//           // Filter users with a role_profile assigned
+//           this.usersWithRoleProfile = data.data.filter(u => u.role_profile).length;
+//         })
+//         .catch(err => console.error(err));
+
+// fetch('/api/resource/User?fields=["name","role-profile"]')
+//   .then(res => res.json())
+//   .then(data => {
+//     console.log(data); // Check actual response
+//     this.usersWithRoleProfile = data.data.filter(u => u.role_profile).length;
+//   })
+//   .catch(err => console.error(err));
+
+
 
 
   },
@@ -526,6 +336,7 @@ fetch("/api/method/frappe.client.get_list", {
   /* background: #f3f4f6; */
 }
 
+
 /* Sidebar */
 .sidebar {
   width: 250px;
@@ -536,6 +347,8 @@ fetch("/api/method/frappe.client.get_list", {
   flex-shrink: 0;
 
 }
+
+
 .sidebar-heading {
   font-size: 20px;
   font-weight: bold;
@@ -570,9 +383,10 @@ fetch("/api/method/frappe.client.get_list", {
 .sidebar-item:active {
   transform: translateX(8px) scale(0.98); /* pressed effect */
 }
+
 .return-home {
   /* margin-top: auto; */
-  margin-top: 300px;
+  margin-top:250px;
   text-align: center;
   padding: 15px 0;
   
@@ -599,6 +413,8 @@ fetch("/api/method/frappe.client.get_list", {
   margin-bottom: 20px;
   border-color: #fff;
   border-radius: 8px;
+  padding: 12px;
+  background-color: #566c88;
 }
 
 .user-photo {
@@ -612,7 +428,6 @@ fetch("/api/method/frappe.client.get_list", {
 .user-name {
   font-weight: bold;
 }
-
 
 
 /* Main Content */
@@ -636,6 +451,17 @@ fetch("/api/method/frappe.client.get_list", {
   border-radius: 12px;
   padding: 15px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px); /* slight lift on hover */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.30);
+}
+
+.card:active {
+  transform: translateY(2px); /* simulate pressing down */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 .cards-row-b {
   display: grid;
@@ -643,13 +469,14 @@ fetch("/api/method/frappe.client.get_list", {
   gap: 20px;
 }
 
-.card h4 {
+.card h6 {
   margin-bottom: 10px;
-  font-size: large;
+   font-size:16px;
 }
 .card p {
-  font-size: 18px;
+  font-size: 28px;
   margin-bottom: 5px;
+  font-weight:500;
 }
 .card .up {
   color: #16a34a;
@@ -659,22 +486,16 @@ fetch("/api/method/frappe.client.get_list", {
 }
 
 /* Graph Section */
-.graph-section {
- 
-
-  margin: auto;     
-  background-color: #fff;
-  border-radius: 8px;
+.graph-card {
+  background: #fff;
+  border-radius: 12px;
   padding: 20px;
-  min-width:100%;
-  
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
-
-#poTrendChart {
-  height: 500px !important; /* adjust height */
-  width: 100% !important;
+#glGraph {
+  width: 100%;
+  height: 250px;
 }
-
 
 /* Bottom Row (Calendar + Map side by side) */
 .bottom-row {
@@ -719,5 +540,33 @@ fetch("/api/method/frappe.client.get_list", {
   height: 300px;
   min-height: 250px;
 }
-</style>
+/* Fade-up animation on page load */
 
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply to cards, graph, calendar, map */
+.card, .graph-section, .calendar-card, .realtime-card {
+  animation: fadeUp 0.8s ease-out;
+  animation-fill-mode: both;
+}
+
+/* Optional: stagger cards */
+.cards-row-a .card:nth-child(1) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(2) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(3) { animation-delay: 0.1s; }
+.cards-row-a .card:nth-child(4) { animation-delay: 0.1s; }
+
+.graph-section { animation-delay: 0.2s; }
+.calendar-card { animation-delay: 0.3s; }
+.realtime-card { animation-delay: 0.3s; }
+
+</style>

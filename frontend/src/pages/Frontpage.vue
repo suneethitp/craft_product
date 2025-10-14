@@ -1,86 +1,4 @@
-<!-- <template>
-  <div class="page">
-    <div class="logo-wrapper">
-       <img src="/Craft Logo PNG (3) 1.png" alt="Logo" class="logo" />
-      <h1 class="heading">Craft Interactive</h1>
-      <button  class="home-btn" @click="goHomepage">Home-></button>
-    </div>
-  </div>
-</template>
 
-
-<script>
-export default {
-  name: "Frontpage",
-  methods: {
-    goHomepage() {
-        console.log('3333333')
-     
-      this.$router.push({name:'Home'});
-    }
-  }
-};
-</script>
-
-<style scoped>
-.page {
-  background-color: #cbd5e1;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.logo-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.logo {
-  width: 400px; 
-  height: auto;
-}
-
-.heading {
-  position: absolute;
-  top: 50%;            
-  left: 50%;          
-  transform: translate(-50%, -50%);
-  font-size: 60px;     
-  color:#1c283a;
-  font-weight: bold;
-  text-align: center;
-  white-space: nowrap; 
-  pointer-events: none;
-  /* text-shadow: 2px 2px 6px rgba(0, 0, 0.2, 0.8); */
-   text-shadow: 2px 2px 6px rgba(250, 249, 249, 0.8); 
- 
-}
-.home-btn {
-
-  margin-top: 250px;    
-  padding: 10px 25px;
-  font-size: 16px;
-  font-weight:bold;
-  color: #fff;
-  background-color: #445165;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.3s ease;
-}
-
-.home-btn:hover {
-  background-color: #5e708a;
-  transform: translateY(-5px);
-}
-</style>  
-
-
- -->
 <template>
   <div class="front-page">
     <!-- Header / Navigation -->
@@ -122,7 +40,6 @@ export default {
   }
 };
 </script>
-
 <style>
 /* Existing styles kept as-is */
 
@@ -255,4 +172,105 @@ export default {
   background-color: rgb(87, 131, 250);
   transform: translateY(-2px);
 }
+
+
+/* Right logo zoom animation on page load */
+.right-logo {
+  position: absolute;
+  right: 200px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 400px;
+  z-index: 2;
+
+  /* Animation properties */
+  animation: zoomLogo 1.5s ease-in-out forwards;
+}
+
+/* Keyframes for zooming effect */
+@keyframes zoomLogo {
+  0% {
+    transform: translateY(-50%) scale(0.5); /* start smaller */
+    opacity: 0; /* optional fade-in */
+  }
+  100% {
+    transform: translateY(-50%) scale(1); /* end at normal size */
+    opacity: 1;
+  }
+}
+
+/* Slide left-to-right with fade-in for heading */
+.left-heading span {
+  display: block;
+  opacity: 0;
+  transform: translateX(-50px); /* start slightly left */
+  animation: slideFadeIn 1.5s ease-out forwards;
+}
+
+/* Stagger heading lines */
+.left-heading span:nth-child(1) {
+  animation-delay: 0.3s;
+}
+.left-heading span:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
+/* Left subtitle slide-in */
+.left-subtitle {
+  opacity: 0;
+  transform: translateX(-50px);
+  animation: slideFadeIn 1.5s ease-out forwards;
+  animation-delay: 1.3s; /* appears after heading */
+}
+
+/* Keyframes for slide + fade-in */
+@keyframes slideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px); /* start left */
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0); /* final position */
+  }
+}
+
+/* Bottom button slide-up with fade-in */
+.home-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: rgb(64, 9, 246);
+  border: none;
+  border-radius: 8px;
+  z-index: 2;
+  margin-bottom: 20px;
+
+  /* Animation */
+  opacity: 0;
+  transform: translateY(50px); /* start below */
+  animation: slideUpFade 1.5s ease-out forwards;
+  animation-delay: 1.5s; /* optional delay after heading animation */
+  transition: all 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: rgb(87, 131, 250);
+  transform: translateY(-2px);
+}
+
+/* Keyframes for sliding up with fade-in */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(50px); /* start below */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0); /* final position */
+  }
+}
+
+
 </style>
